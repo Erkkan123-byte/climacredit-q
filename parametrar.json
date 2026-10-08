@@ -1,0 +1,80 @@
+{
+  "_info": "ClimaCredit Q – all assumptions in one place. Change a value here and the notebook, the quantum model and the server all use it. Each entry has a value and a source.",
+
+  "bank_size_meur": {
+    "value": 300,
+    "source": "Assumption: corporate loan book of a typical local OP cooperative bank (a few hundred MEUR)."
+  },
+  "lgd": {
+    "value": 0.45,
+    "source": "Basel foundation IRB LGD for senior unsecured corporate exposures."
+  },
+  "rho_economy": {
+    "value": {"Agriculture": 0.15, "Construction": 0.15, "Trade": 0.15},
+    "source": "Basel corporate asset correlation range 0.12-0.24."
+  },
+  "rho_climate": {
+    "value": {"Agriculture": 0.10, "Construction": 0.08, "Trade": 0.02},
+    "source": "Assumption: agriculture and construction are the most climate-sensitive sectors (ECB 2022 climate stress test)."
+  },
+  "flood_rho_add": {
+    "value": {"Agriculture": 0.05, "Construction": 0.03, "Trade": 0.0},
+    "source": "Assumption: extra climate sensitivity for regions with a designated significant flood risk area."
+  },
+  "flood_regions": {
+    "value": ["MK14 South Ostrobothnia", "MK15 Ostrobothnia", "MK04 Satakunta", "MK17 North Ostrobothnia", "MK19 Lapland"],
+    "source": "Regions with confirmed significant flood risk areas 2025-2030 (Ministry of Agriculture and Forestry, Dec 2024): Kyronjoki, Laihianjoki, Lapvaartinjoki (Ostrobothnia regions), Pori (Satakunta), Alavieska-Ylivieska (North Ostrobothnia), Rovaniemi (Lapland). Finland has 18 in total - add the rest when known."
+  },
+
+  "pd_agriculture_national": {
+    "value": 0.035,
+    "source": "Starting PD of EU banks' agricultural loans, ECB/ESAs Fit-for-55 climate scenario analysis (Nov 2024)."
+  },
+  "regional_weight": {
+    "value": 0.5,
+    "source": "Assumption: how much we trust regional differences in agricultural bankruptcy rates (0 = same PD everywhere, 1 = full regional difference). Regional counts are small (about 5-15 per year), so we use half."
+  },
+  "pd_scale_construction_trade": {
+    "value": 1.0,
+    "source": "Multiplier on Statistics Finland bankruptcy rates for construction and trade (1.0 = use bankruptcy rates as PD)."
+  },
+
+  "scenarios": {
+    "value": {"Today": 1.00, "Fit-for-55 baseline": 1.25, "Run-on-brown": 1.54, "Adverse": 1.96},
+    "source": "Average corporate PD rises from 2.4% by +0.6 / +1.3 / +2.3 p.p. to 2030, ECB/ESAs Fit-for-55 climate scenario analysis (Nov 2024)."
+  },
+  "main_scenario": {
+    "value": "Run-on-brown",
+    "source": "Choice: the disorderly transition scenario of Fit-for-55."
+  },
+
+  "bank_margin": {
+    "value": 0.02,
+    "source": "Simplification: the bank's existing margin, which already covers today's credit risk and costs."
+  },
+  "euribor_fallback": {
+    "value": 0.022,
+    "source": "Fallback 12-month Euribor if the live ECB feed is unavailable. Update before the demo."
+  },
+  "cost_of_capital": {
+    "value": 0.10,
+    "source": "Assumption: required return on the bank's equity used to price the extra capital a loan needs."
+  },
+  "var_level": {
+    "value": 0.999,
+    "source": "Basel IRB confidence level."
+  },
+
+  "firm_adjustment": {
+    "value": {"strong": 0.5, "satisfactory": 1.0, "weak": 2.0, "payment_default": 4.0},
+    "source": "Assumption: PD multiplier from the firm's key ratios relative to the sector average."
+  },
+  "equity_ratio_limits": {
+    "value": [0.20, 0.40],
+    "source": "Finnish Yritystutkimus standard: equity ratio >40% strong, 20-40% satisfactory, <20% weak."
+  },
+  "net_debt_ebitda_limits": {
+    "value": [3.0, 5.0],
+    "source": "Bank rule of thumb: net debt/EBITDA <3 strong, 3-5 satisfactory, >5 weak."
+  }
+}
