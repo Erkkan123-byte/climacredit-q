@@ -12,8 +12,13 @@ The answer is compared with the exact value and with a noise-free simulator.
 Usage (in Jupyter, same folder as the other files):
     %run kvant_hardware.py                      # noise-free simulator + IQM noisy simulator (no login needed)
 
+    # Real IQM quantum computer (token from the IQM Server dashboard):
+    import os, getpass
+    os.environ["IQM_TOKEN"] = getpass.getpass("IQM token: ")
     from kvant_hardware import run_on
-    run_on("iqm", url="https://<your IQM Resonance server URL>", token="<your token>")
+    run_on("iqm", url="https://<IQM server URL>", scenarios=["Run-on-brown"])
+    #   if the server has several quantum computers, add quantum_computer="<name>"
+
     run_on("ibm", token="<your IBM Quantum API key>", instance="<your instance CRN>")
 
 Install (IQM and IBM need different Qiskit versions -> use separate environments):
@@ -87,7 +92,9 @@ def _get_backend(kind, **login):
         return IQMFakeApollo()
     if kind == "iqm":
         from iqm.qiskit_iqm import IQMProvider
-        return IQMProvider(login["url"], token=login.get("token")).get_backend()
+        # url, token and quantum_computer can also come from IQM_SERVER_URL, IQM_TOKEN, IQM_QUANTUM_COMPUTER
+        extra = {k: login[k] for k in ("token", "quantum_computer") if login.get(k)}
+        return IQMProvider(login.get("url"), **extra).get_backend()
     if kind == "ibm-fake":
         from qiskit_ibm_runtime.fake_provider import FakeTorino   # noisy model of IBM's Heron r1
         return FakeTorino()
@@ -115,12 +122,15 @@ def _objective_physical_qubit(tc):
     return tc.layout.final_index_layout()[2 * N] if tc.layout is not None else 2 * N
 
 
-def run_on(kind="ideal", scenarios=None, **login):
+def run_on(kind="ideal", scenarios=None, banks=None, **login):
+    """kind: ideal | iqm-fake | iqm | ibm-fake | ibm. scenarios / banks: lists to run fewer jobs on real hardware."""
     model = Model()
     scenarios = scenarios or ["Today", model.p["main_scenario"]]
     backend = _get_backend(kind, **login)
     rows = []
     for name, region in BANKS.items():
+        if banks and name not in banks and region not in banks:
+            continue
         for sc in scenarios:
             circ, exact_el, lmax = build_circuit(model, region, sc)
             p, two_q, tc = _run(backend, kind, circ)
