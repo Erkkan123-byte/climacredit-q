@@ -1,5 +1,5 @@
 """
-ClimaCredit Q – run the climate uncertainty model on REAL quantum hardware (IQM or IBM).
+ClimaCredit Q v6 – run the climate uncertainty model on REAL quantum hardware (IQM or IBM).
 
 Full QAE needs thousands of two-qubit gates, which today's machines cannot run without
 the noise taking over. So on hardware we run the small part that fits:
@@ -42,7 +42,7 @@ def normal_distribution(n, bound):
 N = 2                      # qubits per factor -> 4 x 4 = 16 scenarios (small enough for hardware)
 Z_BOUND = 2.0
 SHOTS = 4000
-BANKS = {"Rural bank (Ostrobothnia)": "MK15 Ostrobothnia", "City bank (Uusimaa)": "MK01 Uusimaa"}
+BANKS = {"Rural bank (South Ostrobothnia)": "MK14 South Ostrobothnia", "City bank (Uusimaa)": "MK01 Uusimaa"}
 
 
 def build_circuit(model, region, scenario):

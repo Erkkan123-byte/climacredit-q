@@ -1,0 +1,38 @@
+kod,bransch,namn,namn_en,konk_2018,konk_2019,konk_2020,konk_2021,konk_2022,konk_2023,konk_2024,konk_2025,foretag_2018,foretag_2019,foretag_2020,foretag_2021,foretag_2022,foretag_2023,foretag_2024,foretag_2025
+411,F_bygg,Utveckling av byggprojekt,Development of building projects,8,11,9,14,11,28,21,28,867,1005,1165,1289,1417,1496,1545,1524.0
+412,F_bygg,Byggande av bostadshus och andra byggnader,Construction of residential and non-residential buildings,246,268,209,255,296,418,364,353,21203,21527,21812,22248,22917,22952,22842,22555.0
+421,F_bygg,Anläggning av vägar och järnvägar,Construction of roads and railways,5,3,3,7,9,3,4,3,514,505,525,522,516,520,517,520.0
+422,F_bygg,Anläggning av ledningsnät,Construction of utility projects,2,2,5,3,3,3,3,8,452,458,479,469,499,530,624,700.0
+429,F_bygg,Annan anläggningsverksamhet,Construction of other civil engineering projects,6,13,5,16,20,35,45,28,1089,1307,1480,1640,1749,1854,1971,2059.0
+431,F_bygg,Rivning och markarbeten,Demolition and site preparation,46,55,42,48,52,53,49,74,7377,7202,7114,7100,7012,6910,6870,6757.0
+432,F_bygg,"El-, VVS- och andra installationer","Electrical, plumbing and other installation",83,78,77,112,83,115,121,122,10315,10496,10621,10824,11129,11400,11531,11498.0
+433,F_bygg,Slutbehandling av byggnader,Building completion and finishing,37,36,24,40,25,48,44,60,4823,4872,5056,5151,5444,5656,5787,5814.0
+439,F_bygg,Annan specialiserad byggverksamhet,Other specialised construction,45,54,43,57,65,79,96,92,4584,4782,4988,5282,5470,5641,5671,5559.0
+451,G_handel,Handel med motorfordon,Sale of motor vehicles,25,25,15,28,33,49,37,43,2508,2620,2694,2684,2669,2583,2574,2474.0
+452,G_handel,Reparation och underhåll av motorfordon,Maintenance and repair of motor vehicles,67,53,55,69,82,93,99,124,7581,7761,8027,8280,8461,8551,8911,9109.0
+453,G_handel,Handel med reservdelar till motorfordon,Sale of motor vehicle parts,17,20,10,7,17,20,19,23,1650,1626,1644,1636,1646,1633,1621,1619.0
+454,G_handel,Handel med och reparation av motorcyklar,Sale and repair of motorcycles,4,5,4,3,1,3,5,5,393,383,388,375,374,377,383,374.0
+461,G_handel,Agentur- och provisionshandel,Wholesale on a fee or contract basis,35,32,22,21,25,26,27,37,4684,4557,4411,4158,4045,3887,3821,3767.0
+462,G_handel,Partihandel med jordbruksråvaror och djur,Wholesale of agricultural raw materials and live animals,3,2,3,2,1,2,2,3,240,222,214,207,202,196,202,188.0
+463,G_handel,Partihandel med livsmedel och drycker,"Wholesale of food, beverages and tobacco",13,13,5,12,11,15,22,12,1380,1370,1366,1347,1330,1314,1299,1284.0
+464,G_handel,Partihandel med hushållsvaror,Wholesale of household goods,35,34,28,30,23,26,33,28,3837,3734,3660,3529,3420,3264,3192,3085.0
+465,G_handel,Partihandel med IT- och kommunikationsutrustning,Wholesale of ICT equipment,5,5,4,4,4,7,5,5,839,824,812,768,732,698,686,663.0
+466,G_handel,Partihandel med maskiner och utrustning,Wholesale of other machinery and equipment,22,19,24,17,24,28,23,20,3034,2982,2935,2877,2819,2798,2702,2648.0
+467,G_handel,Annan specialiserad partihandel,Other specialised wholesale,24,23,19,24,25,27,29,17,2863,2821,2770,2696,2650,2601,2523,2431.0
+469,G_handel,Icke specialiserad partihandel,Non-specialised wholesale,8,10,10,9,14,13,15,18,995,1008,1060,1086,1102,1083,1109,1103.0
+471,G_handel,Detaljhandel med brett sortiment,Retail sale in non-specialised stores,28,26,33,27,18,21,14,23,2743,2704,2615,2536,2487,2423,2358,2283.0
+472,G_handel,Specialiserad detaljhandel med livsmedel,Retail sale of food in specialised stores,14,21,7,11,20,23,22,26,1369,1313,1293,1281,1276,1226,1240,1262.0
+473,G_handel,Detaljhandel med drivmedel (bensinstationer),Retail sale of automotive fuel (fuel stations),11,11,4,18,18,19,13,14,748,738,710,702,692,659,634,594.0
+474,G_handel,Detaljhandel med IT- och kommunikationsutrustning,Retail sale of ICT equipment,3,6,6,4,2,3,11,6,879,841,819,775,753,718,708,701.0
+475,G_handel,Detaljhandel med hushållsartiklar,Retail sale of other household equipment,45,37,31,29,31,34,36,41,4067,3906,3779,3655,3592,3504,3430,3266.0
+476,G_handel,Detaljhandel med kultur- och fritidsvaror,Retail sale of cultural and recreation goods,17,13,14,14,10,19,18,25,1827,1762,1711,1712,1706,1696,1706,1649.0
+477,G_handel,Detaljhandel med övriga varor,Retail sale of other goods in specialised stores,96,93,79,58,67,77,75,73,9660,9360,9152,8929,8741,8621,8655,8394.0
+478,G_handel,Torg- och marknadshandel,Retail sale via stalls and markets,2,0,1,2,1,3,3,5,487,476,466,460,464,471,507,488.0
+479,G_handel,Detaljhandel utanför butik (bl.a. e-handel),Retail trade not in stores (incl. e-commerce),22,20,16,26,20,38,38,43,5800,5910,6021,5914,5948,5943,6138,5871.0
+011,01_jordbruk,Odling av ettåriga växter (spannmål m.m.),Growing of non-perennial crops,10,9,8,14,9,16,20,25,25606,33218,30950,30794,30430,29564,34408,
+012,01_jordbruk,Odling av fleråriga växter,Growing of perennial crops,3,0,0,0,3,1,0,5,3200,1596,1591,1656,1666,1863,1927,
+013,01_jordbruk,Plantskolor och växtförökning,Plant propagation,0,1,1,2,0,0,0,1,114,99,98,102,104,104,101,
+014,01_jordbruk,Husdjursskötsel,Animal production,9,21,23,39,27,23,25,28,10113,14837,14385,14244,14109,13600,12885,
+015,01_jordbruk,Blandat jordbruk,Mixed farming,5,7,2,3,0,2,4,4,20793,9424,9033,8923,8624,8440,8071,
+016,01_jordbruk,Service till jordbruket,Support activities to agriculture,1,5,2,6,4,6,9,7,2277,2108,2275,2416,2509,2696,2698,
+017,01_jordbruk,Jakt och vilthantering,"Hunting, trapping and related services",0,1,0,0,0,0,0,1,33,37,43,47,56,59,64,

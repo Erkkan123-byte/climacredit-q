@@ -1,0 +1,147 @@
+Rebuild ClimaCredit Q as a LOAN CALCULATOR, laid out like the online loan calculators of Nordic banks: the inputs on the left, one big result card on the right that updates live, and the details (repayment plan, good/bad years, regions, the local bank, quantum) below. Keep the existing API connection. If this project already has a ClimaCredit Q page, replace its layout with this one.
+
+App name: ClimaCredit Q. Subtitle: "Climate-adjusted business loans for local banks · quantum risk engine". Audience: a bank's credit advisor and a hackathon jury. Language: English.
+
+Style: clean Nordic fintech. White and very light grey background, dark navy text (#0B1F33), ONE accent colour forest green (#1F7A4D) for the climate add-on, soft grey for the reference rate, navy for the bank margin. Rounded cards (16 px), generous spacing, big readable numbers (tabular figures). Use our own brand only: no real bank logos, names or brand colours anywhere.
+
+All calculations happen in the API. Do NOT compute risk or interest in the frontend. Store the base URL in one constant:
+API_BASE = "https://climacredit-q-api.onrender.com"
+
+==================================================
+API (all rates are decimals: 0.0525 = 5.25 %)
+==================================================
+On page load:
+- GET /regions -> [{ id, name, loan_mix:{Agriculture,Construction,Trade}, pd_today, flood_risk_area:boolean, flood_areas:[{name,type:"river"|"coastal"}], harvest_area, drought_sensitivity }]  (19 regions; use `name`)
+- GET /euribor -> { euribor_12m, period, source, rates: { euribor_12m:{value,period,source,label}, euribor_6m:{...}, euribor_3m:{...}, euribor_1m:{...} } }
+- GET /parameters -> { <key>: { value, source } }  (assumptions with sources)
+- GET /weather_years -> { options:[{label, year, national_harvest_deviation, harvest_deviation_by_area}], all_years:{ "2010": {"Western Finland": -0.07, ...}, ... } }
+- GET /scenarios -> { main_scenario, scenarios:[{ name, eu_average_multiplier, pd_multiplier_by_sector }] }
+When the sector changes:
+- GET /sub_industries?sector=Agriculture -> [{ code, name, relative_risk, bankruptcies_2019_2024 }]
+
+Main call - POST /price with JSON:
+{
+  "company_name": "Pelto Oy",
+  "sector": "Agriculture",                 // "Agriculture" | "Construction" | "Trade"
+  "sub_industry": null,                    // optional TOL code from /sub_industries, e.g. "014"
+  "region": "South Ostrobothnia",          // name from /regions
+  "amount_eur": 500000,
+  "loan_term_years": 10,
+  "repayment_type": "annuity",             // "annuity" | "equal_principal" | "bullet"
+  "reference_rate": "euribor_12m",         // "euribor_12m" | "euribor_6m" | "euribor_3m" | "euribor_1m"
+  "bank_margin": 0.02,                     // from the margin slider
+  "equity_ratio": 0.30,                    // optional
+  "net_debt_ebitda": 4.0,                  // optional
+  "payment_default": false,
+  "scenario": "Run-on-brown",              // "Today" | "Fit-for-55 baseline" | "Run-on-brown" | "Adverse"
+  "weather_year": "Normal year",           // "Good year" | "Normal year" | "Bad year" | "Very bad year"
+  "overrides": { },                        // only assumptions the user changed (omit if none)
+  "compare_regions": true
+}
+Response fields used:
+- total_rate, euribor, reference_rate_label, euribor_period, euribor_source, bank_margin
+- climate_addon (never negative), climate_addon_raw (can be negative in a good year), climate_addon_own_risk, climate_addon_concentration (label it "capital"), climate_addon_transition, climate_addon_weather
+- rate_breakdown: [{part, value}] (4 parts, in order: reference rate, bank margin, climate own risk, climate capital)
+- pd_today, pd_scenario, firm_grade, sub_industry_name, sub_industry_multiplier, transition_multiplier, weather_multiplier, weather_label
+- loan: { term_years, repayment_type, monthly_payment_first, monthly_payment_last, monthly_payment_first_without_climate, total_interest, total_interest_without_climate, climate_cost_total_eur, total_paid, yearly:[{year, payments, interest, principal, balance_end}] }
+- climate_addon_by_weather: { "Good year": x, "Normal year": x, "Bad year": x, "Very bad year": x }
+- climate_addon_by_scenario: { "Fit-for-55 baseline": x, "Run-on-brown": x, "Adverse": x }
+- addon_matrix: { <scenario>: { <weather label>: x } }  (4 x 4)
+- physical_risk: { harvest_area_name, harvest_volatility, drought_sensitivity, worst_harvest_years:[{year, deviation}], best_harvest_year:{year, deviation}, selected_year_harvest_deviation, flood_risk_area, flood_areas:[{name,type}] }
+- bank: { loan_book_meur, loan_mix, flood_risk_area, today:{expected_loss_meur, var_meur, es_meur, capital_meur}, scenario:{...same}, capital_increase_pct, expected_loss_increase_pct }
+- explanation (plain-English text)
+- same_loan_other_regions: [{ region, climate_addon, flood_risk_area, agriculture_share }] sorted high -> low
+
+Other calls:
+- GET /banks?scenario=Run-on-brown&weather_year=Normal%20year -> { banks:[{ region, agriculture_share, flood_risk_area, drought_sensitivity, capital_today_meur, capital_scenario_meur, capital_increase_pct, expected_loss_today_meur, expected_loss_scenario_meur }] }
+- POST /quantum with { "region": "...", "scenario": "...", "weather_year": "..." } -> { qubits, factor_states, large_loss_threshold_meur, p_large_loss_exact, p_large_loss_qae, p_large_loss_ci:[lo,hi], expected_loss_exact_meur, expected_loss_qae_meur, expected_loss_ci_meur:[lo,hi], oracle_calls, monte_carlo_samples_same_precision, runtime_seconds, backend }. Takes 10-60 s.
+
+Behaviour:
+- Recalculate automatically 400 ms after any input stops changing (debounce). Keep showing the previous result with a subtle shimmer while loading. Never block the inputs.
+- The free server sleeps. If a call fails or takes more than 5 s, show "Waking up the risk engine..." and retry up to 3 times.
+- Show API errors (field `detail`) in a small red note under the result card.
+- Format: percentages with 2 decimals ("5.25 %"), money with space as thousands separator and euro sign after ("500 000 €"), monthly payment without decimals.
+
+==================================================
+PAGE LAYOUT
+==================================================
+1) HEADER (thin): "ClimaCredit Q" wordmark on the left. Right: buttons "Assumptions" (opens the drawer) and "How it works" (scrolls to footer).
+
+2) HERO (short): H1 "What does climate risk add to a business loan?"  Sub-line: "Euribor + the bank's margin + a climate add-on from an EU climate scenario and the local bank's loan book."
+
+3) CALCULATOR (two columns on desktop; on mobile the result card comes first, then the inputs)
+
+LEFT CARD - "Loan"
+- Loan amount: big number field with € plus a slider below (10 000 - 20 000 000 €, step 10 000, default 500 000).
+- Loan term: slider 1-30 years (default 10), value shown as "10 years".
+- Repayment: segmented control "Annuity" / "Equal principal" / "Bullet" with a one-line hint under it (annuity = same payment every month; equal principal = same amortisation, payments fall; bullet = interest only, all principal at the end).
+- Reference rate: select "12-month Euribor 3.25 % (Sep 2026)", "6-month Euribor ...", "3-month ...", "1-month ..." using GET /euribor values.
+- Bank margin: slider 0.50 % - 5.00 % (step 0.05 %, default from /parameters bank_margin = 2.00 %) with an editable number next to it. Hint: "Your bank's own margin. It already covers today's credit risk."
+
+LEFT CARD continues - "Borrower"
+- Company name (text).
+- Sector: three large toggle tiles with icons: Agriculture (wheat), Construction (crane), Trade (shopping bag).
+- Sub-industry (optional): select filled from /sub_industries for the chosen sector, first option "All / not specified". Show each option as "014 Animal production" with a small badge "x2.2 risk" (relative_risk, 1 decimal). Reset when the sector changes.
+- Region: searchable select of the 19 regions. Next to the chosen region show small badges: "River flood area" / "Coastal flood area" (from flood_areas types) and "Drought-prone" if drought_sensitivity > 1.2.
+- Key ratios (collapsible "Add key ratios", optional): Equity ratio % (send 0.30 for 30), Net debt / EBITDA, toggle "Payment defaults in the last 12 months".
+
+LEFT CARD continues - "Climate"
+- Transition scenario (EU Fit-for-55): segmented "Today" / "Fit-for-55" / "Run-on-brown" / "Adverse", default Run-on-brown. Tooltip: "ECB/ESAs scenarios to 2030. Run-on-brown = disorderly transition."
+- Weather year (physical risk): segmented with small icons "Good year 2019" (sun) / "Normal" / "Bad year 2018" (drought) / "Very bad year 2021" (heat). Default Normal. Tooltip: "Analogue years from Eurostat harvests: 2019 best harvest vs trend, 2018 drought, 2021 smallest harvest since 1992."
+
+RIGHT CARD - "Your loan" (sticky on desktop, navy background with white text)
+- Small label "Interest rate", BIG number total_rate (e.g. "8.25 %").
+- Next to it, BIG "Monthly payment" = loan.monthly_payment_first (for equal principal label it "First monthly payment"; for bullet "Monthly interest").
+- A receipt-style breakdown, one row each, right-aligned values:
+    12-month Euribor ............ 3.25 %   (reference_rate_label, euribor)
+    Bank margin ................. 2.00 %
+    Climate add-on .............. 3.00 %   (green, bold) - expandable to show:
+        own climate risk  2.39 %  |  capital  0.61 %
+        from the transition scenario 2.17 %  |  from the weather year +0.83 %   (climate_addon_transition, climate_addon_weather; hide the weather row in a Normal year)
+- A full-width stacked horizontal bar of the 4 parts in rate_breakdown (grey, navy-light, green, light green), labels on hover.
+- Two highlight lines:
+    "The climate add-on costs 92 096 € over 10 years" (loan.climate_cost_total_eur, loan.term_years)
+    "Without it: 5 364 €/month" (loan.monthly_payment_first_without_climate)
+- Small grey rows: Total interest, Total to repay.
+- PD line: "Default probability: 3.9 % today -> 9.2 % in this scenario" and the firm grade chip.
+- If climate_addon_raw < 0, show a note: "Lower climate risk than today - no discount is given."
+- Footnote: "Euribor: ECB, Sep 2026 (euribor_source). Indicative pricing for a hackathon demo."
+
+4) DETAILS - tabs under the calculator
+Tab "Repayment plan": stacked bar chart per year (principal vs interest), line for remaining balance, then a compact table from loan.yearly (Year, Payments, Interest, Principal, Balance).
+
+Tab "Good year / bad year":
+- Bar chart of climate_addon_by_weather (4 bars: Good year green, Normal grey, Bad year orange, Very bad year red; values in %, negative allowed - draw a zero line). Title "Climate add-on in good and bad years".
+- Heatmap 4x4 from addon_matrix: rows = transition scenarios, columns = weather years, cell = add-on % (white -> deep green; negative cells light blue). Highlight the selected cell.
+- Card "Physical risk in {region}": harvest area (physical_risk.harvest_area_name), "Worst harvests: 2021 -17 %, 2018 -12 %" (worst_harvest_years, deviation as %), "Best: 2019 +19 %", drought sensitivity (x0.85 = below average, >1 = above), and the list of flood_areas with a river or wave icon. If none: "No significant flood risk area".
+- Small line chart from /weather_years all_years: harvest deviation by year 2010-2024 for the four areas, the chosen region's area highlighted.
+
+Tab "Why this add-on?": the `explanation` text in a callout; small cards: PD today -> scenario; transition_multiplier ("x1.97 for the sector average"); weather_multiplier; sub-industry ("Animal production x2.2"); firm grade. Then "Add-on by scenario" mini bar chart from climate_addon_by_scenario.
+
+Tab "Other regions": horizontal bar chart of same_loan_other_regions (19 bars), selected region highlighted in green, flood icon after the name. Caption: "The same loan, priced for each local bank."
+
+Tab "The local bank": donut of bank.loan_mix (Agriculture/Construction/Trade), "Loan book 300 MEUR"; a small table Today vs Scenario for expected loss, expected shortfall 99.9 % (es_meur) and capital (MEUR); big stat "Capital need +26 %" (capital_increase_pct) and "Expected loss +110 %". Button "Compare all 19 banks" -> loads GET /banks with the current scenario and weather year and shows a sortable table (region, agriculture share, flood, capital today, capital in scenario, increase %).
+
+Tab "Quantum": title "Quantum risk engine". Text: "The bank's tail risk is estimated with Quantum Amplitude Estimation (Qiskit) on a 9-qubit circuit: economy factor (4 qubits) + climate factor (4 qubits) + 1 objective qubit = 256 economy x climate states." Button "Run quantum calculation" -> POST /quantum with the current region, scenario and weather year; spinner "Running QAE on a simulator (up to a minute)...". Then a two-column comparison Exact vs QAE for "P(loss >= 10 % of the loan book)" and "Expected loss (MEUR)" with the QAE 95 % intervals, plus: qubits, oracle calls vs "Monte Carlo samples for the same precision" (show both numbers big - this is the quadratic speed-up), runtime. Note: "Today's hardware is too noisy for full QAE; we ran the uncertainty model on IQM/IBM hardware separately. The speed-up applies to future fault-tolerant quantum computers."
+
+5) ASSUMPTIONS DRAWER (right side panel, opened from the header)
+Load /parameters. Each slider shows its value and the `source` text in small grey. Only send changed values in `overrides`; show a badge "Custom assumptions" and a "Reset to sources" button.
+- Agriculture PD (pd_agriculture_national): 1 %-10 %, step 0.1 %
+- Construction & trade average PD (pd_construction_trade_average): 1 %-6 %, step 0.1 %
+- Regional differences (regional_weight): 0-1, step 0.1
+- Drought differences between regions (drought_regional_weight): 0-1, step 0.1
+- Weather sensitivity of farms (weather_beta): 0-3, step 0.1
+- Sector differences in the transition (transition_sector_tilt): 0-1, step 0.1
+- Scenario multipliers (scenarios): Fit-for-55 baseline, Run-on-brown, Adverse, each 1.0-3.0 (send e.g. {"scenarios": {"Run-on-brown": 1.8}})
+- LGD (lgd): 20 %-80 %
+- Cost of capital (cost_of_capital): 5 %-20 %
+- Local bank loan book MEUR (bank_size_meur): 50-2000
+(The bank margin is NOT in the drawer - it is the slider in the calculator.)
+
+6) FOOTER "How it works"
+Three short columns:
+- "Rate" - Reference rate (live Euribor from the ECB) + the bank's margin + a climate add-on.
+- "Climate add-on" - Own risk: higher expected loss when the sector's default probability rises in an EU climate scenario and in a bad harvest year. Capital: the cost of the extra capital the loan needs in the local bank's loan book (expected shortfall 99.9 %).
+- "Data" - Statistics Finland (bankruptcies, restructurings, firms, farm debt, SME interest costs), Eurostat harvests 2010-2024, ECB/ESAs Fit-for-55 (Nov 2024), Finland's 18 significant flood risk areas 2025-2030 (Ministry of Agriculture and Forestry), Luke (2018 drought, 2021 harvest). Risk model: Basel ASRF with an economy and a climate factor. Built for the OP Quantum x Hanken hackathon 2026.
+
+Make it fully responsive (laptop projector and phone), keyboard accessible, and fast.
