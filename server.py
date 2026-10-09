@@ -280,6 +280,9 @@ class PlanRequest(BaseModel):
     years: float = Field(5, gt=0, le=40)
     repayment_type: str = Field("annuity", description="annuity | equal_principal | bullet")
 
+    model_config = {"json_schema_extra": {"examples": [
+        {"amount_eur": 500000, "annual_rate": 0.0742, "years": 10, "repayment_type": "annuity"}]}}
+
 
 @app.post("/payment_plan")
 def plan(req: PlanRequest):
@@ -308,6 +311,12 @@ class PriceRequest(BaseModel):
     loan_term_years: float = Field(5, gt=0, le=40)
     repayment_type: str = Field("annuity", description="annuity | equal_principal | bullet")
     include_matrix: bool = True
+
+    model_config = {"json_schema_extra": {"examples": [{
+        "company_name": "Pelto Oy", "sector": "Agriculture", "sub_industry": None, "region": "South Ostrobothnia",
+        "amount_eur": 500000, "loan_term_years": 10, "repayment_type": "annuity", "reference_rate": "euribor_12m",
+        "bank_margin": 0.02, "equity_ratio": 0.30, "net_debt_ebitda": 4.0, "payment_default": False,
+        "scenario": "Run-on-brown", "weather_year": "Bad year", "compare_regions": True}]}}
 
 
 @app.post("/price")
@@ -432,6 +441,9 @@ class QuantumRequest(BaseModel):
     scenario: Optional[str] = None
     weather_year: Optional[Union[int, str]] = None
     overrides: Optional[Dict[str, Any]] = None
+
+    model_config = {"json_schema_extra": {"examples": [
+        {"region": "South Ostrobothnia", "scenario": "Run-on-brown", "weather_year": "Normal year"}]}}
 
 
 @app.post("/quantum")
